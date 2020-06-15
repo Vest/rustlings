@@ -4,6 +4,7 @@
 // somewhere. Try not to create any copies of the `numbers` Vec!
 // Execute `rustlings hint arc1` for hints :)
 
+#![forbid(unused_imports)]
 use std::sync::Arc;
 use std::thread;
 
