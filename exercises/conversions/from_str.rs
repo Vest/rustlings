@@ -10,7 +10,6 @@ struct Person {
     age: usize,
 }
 
-// I AM NOT DONE
 // Steps:
 // 1. If the length of the provided string is 0, then return an error
 // 2. Split the given string on the commas present in it
@@ -23,6 +22,32 @@ struct Person {
 impl FromStr for Person {
     type Err = String;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
+        if s.len() == 0 {
+            return Err(String::from("Empty string"));
+        } else if !s.contains(',') {
+            return Err(String::from("No comma in the string"));
+        }
+
+        let mut split = s.split(",");
+        let s1 = String::from(split.next().unwrap());
+        let s2 = split.next().unwrap();
+
+        if s1.len() == 0 || s2.len() == 0 {
+            return Err(String::from("Empty name, or empty age"));
+        }
+
+        let p2 = s2.parse::<usize>();
+
+        if let Err(e) = p2 {
+            return Err(e.to_string());
+        }
+
+        let age = p2.unwrap();
+
+        Ok(Person {
+            name: s1,
+            age,
+        })
     }
 }
 
@@ -39,6 +64,7 @@ mod tests {
     fn empty_input() {
         assert!("".parse::<Person>().is_err());
     }
+
     #[test]
     fn good_input() {
         let p = "John,32".parse::<Person>();
@@ -47,6 +73,7 @@ mod tests {
         assert_eq!(p.name, "John");
         assert_eq!(p.age, 32);
     }
+
     #[test]
     #[should_panic]
     fn missing_age() {
@@ -82,5 +109,4 @@ mod tests {
     fn missing_name_and_invalid_age() {
         ",one".parse::<Person>().unwrap();
     }
-
 }

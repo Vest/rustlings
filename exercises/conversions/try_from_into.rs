@@ -11,8 +11,6 @@ struct Color {
     blue: u8,
 }
 
-// I AM NOT DONE
-
 // Your task is to complete this implementation
 // and return an Ok result of inner type Color.
 // You need create implementation for a tuple of three integer,
@@ -26,6 +24,17 @@ struct Color {
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = String;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        if tuple.0 < 0 || tuple.1 < 0 || tuple.2 < 0 {
+            return Err(String::from("One of color values is negative"));
+        } else if tuple.0 < 256 && tuple.1 < 256 && tuple.2 < 256 {
+            return Ok(Color {
+                red: tuple.0 as u8,
+                green: tuple.1 as u8,
+                blue: tuple.2 as u8,
+            });
+        } else {
+            return Err(String::from("One of color values exceeds 255"));
+        }
     }
 }
 
@@ -33,6 +42,17 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = String;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        if arr[0] < 0 || arr[1] < 0 || arr[2] < 0 {
+            return Err(String::from("One of color values is negative"));
+        } else if arr[0] < 256 && arr[1] < 256 && arr[2] < 256 {
+            return Ok(Color {
+                red: arr[0] as u8,
+                green: arr[1] as u8,
+                blue: arr[2] as u8,
+            });
+        } else {
+            return Err(String::from("One of color values exceeds 255"));
+        }
     }
 }
 
@@ -40,6 +60,29 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = String;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        if slice.len() != 3 {
+            return Err(String::from("The slice length doesn't equal 3"));
+        }
+
+        let mut iter = slice.iter();
+
+        let red = *iter.next().unwrap();
+        let green = *iter.next().unwrap();
+        let blue = *iter.next().unwrap();
+
+        println!("{}, {}, {}", red, green, blue);
+
+        if red < 0 || green < 0 || blue < 0 {
+            return Err(String::from("One of color values is negative"));
+        } else if red > 255 || green > 255 || blue > 255 {
+            return Err(String::from("One of color values exceeds 255"));
+        }
+
+        return Ok(Color {
+            red: red as u8,
+            green: green as u8,
+            blue: blue as u8,
+        });
     }
 }
 
@@ -70,11 +113,13 @@ mod tests {
     fn test_tuple_out_of_range_positive() {
         let _ = Color::try_from((256, 1000, 10000)).unwrap();
     }
+
     #[test]
     #[should_panic]
     fn test_tuple_out_of_range_negative() {
         let _ = Color::try_from((-1, -10, -256)).unwrap();
     }
+
     #[test]
     fn test_tuple_correct() {
         let c: Color = (183, 65, 14).try_into().unwrap();
@@ -88,11 +133,13 @@ mod tests {
     fn test_array_out_of_range_positive() {
         let _: Color = [1000, 10000, 256].try_into().unwrap();
     }
+
     #[test]
     #[should_panic]
     fn test_array_out_of_range_negative() {
         let _: Color = [-10, -256, -1].try_into().unwrap();
     }
+
     #[test]
     fn test_array_correct() {
         let c: Color = [183, 65, 14].try_into().unwrap();
@@ -107,12 +154,14 @@ mod tests {
         let arr = [10000, 256, 1000];
         let _ = Color::try_from(&arr[..]).unwrap();
     }
+
     #[test]
     #[should_panic]
     fn test_slice_out_of_range_negative() {
         let arr = [-256, -1, -10];
         let _ = Color::try_from(&arr[..]).unwrap();
     }
+
     #[test]
     fn test_slice_correct() {
         let v = vec![183, 65, 14];
@@ -121,6 +170,7 @@ mod tests {
         assert_eq!(c.green, 65);
         assert_eq!(c.blue, 14);
     }
+
     #[test]
     #[should_panic]
     fn test_slice_excess_length() {
